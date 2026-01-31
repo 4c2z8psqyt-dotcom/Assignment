@@ -1,4 +1,3 @@
-Task 1
 public class Equipment {
     private String assetId;
     private String name;
