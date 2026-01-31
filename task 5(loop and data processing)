@@ -1,0 +1,100 @@
+public class InventoryReports {
+
+    private InventoryItem[] inventoryItems;
+    private StaffMember[] staffMembers;
+
+    public InventoryReports(InventoryItem[] inventoryItems, StaffMember[] staffMembers) {
+        this.inventoryItems = inventoryItems;
+        this.staffMembers = staffMembers;
+    }
+
+    public void generateInventoryReport() {
+        System.out.println("\n--- Inventory Report ---");
+
+        for (int i = 0; i < inventoryItems.length; i++) {
+            if (inventoryItems[i] != null) {
+                System.out.println(inventoryItems[i]);
+            }
+        }
+    }
+
+    public void findExpiredWarranties() {
+        System.out.println("\n--- Expired Warranty Report ---");
+
+        int i = 0;
+        while (i < inventoryItems.length) {
+            if (inventoryItems[i] instanceof Equipment) {
+                Equipment eq = (Equipment) inventoryItems[i];
+                if (eq.getWarrantyMonths() == 0) {
+                    System.out.println(eq);
+                }
+            }
+            i++;
+        }
+    }
+
+    public void displayAssignmentsByDepartment() {
+        System.out.println("\n--- Equipment Assignments ---");
+
+        for (StaffMember staff : staffMembers) {
+            if (staff != null) {
+                System.out.println("Staff: " + staff.getName());
+
+                for (Equipment eq : staff.getAssignedEquipment()) {
+                    if (eq != null) {
+                        System.out.println("  - " + eq.getName());
+                    }
+                }
+            }
+        }
+    }
+
+    public void calculateUtilisationRate() {
+        int totalEquipment = 0;
+        int assignedEquipment = 0;
+
+        for (InventoryItem item : inventoryItems) {
+            if (item instanceof Equipment) {
+                totalEquipment++;
+
+                for (StaffMember staff : staffMembers) {
+                    if (staff != null) {
+                        for (Equipment eq : staff.getAssignedEquipment()) {
+                            if (eq != null && eq.equals(item)) {
+                                assignedEquipment++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (totalEquipment > 0) {
+            double utilisationRate = (assignedEquipment * 100.0) / totalEquipment;
+            System.out.println("\nEquipment Utilisation Rate: " + utilisationRate + "%");
+        } else {
+            System.out.println("\nNo equipment available to calculate utilisation rate.");
+        }
+    }
+
+    public void generateMaintenanceSchedule() {
+        System.out.println("\n--- Maintenance Schedule ---");
+
+        int i = 0;
+        do {
+            if (i < inventoryItems.length &&
+                inventoryItems[i] instanceof Equipment) {
+
+                Equipment eq = (Equipment) inventoryItems[i];
+
+                if (!eq.isAvailable()) {
+                    System.out.println(
+                        "Maintenance scheduled for: " +
+                        eq.getName() + " (Asset ID: " + eq.getAssetId() + ")"
+                    );
+                }
+            }
+            i++;
+        } while (i < inventoryItems.length);
+    }
+}
