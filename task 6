@@ -1,0 +1,163 @@
+import java.util.Scanner;
+
+public class UniversityInventorySystem {
+
+    public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+        InventoryManager manager = new InventoryManager();
+
+        InventoryItem[] inventory = new InventoryItem[20];
+        StaffMember[] staffMembers = new StaffMember[10];
+
+        int inventoryCount = 0;
+        int staffCount = 0;
+
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\n===== University Inventory Management System =====");
+            System.out.println("1. Add new equipment");
+            System.out.println("2. Register new staff member");
+            System.out.println("3. Assign equipment to staff");
+            System.out.println("4. Return equipment");
+            System.out.println("5. Search inventory");
+            System.out.println("6. Generate reports");
+            System.out.println("7. Exit system");
+            System.out.print("Choose an option: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            try {
+                switch (choice) {
+
+                    case 1:
+                        System.out.print("Enter equipment ID: ");
+                        String id = scanner.nextLine();
+
+                        System.out.print("Enter equipment name: ");
+                        String name = scanner.nextLine();
+
+                        System.out.print("Enter brand: ");
+                        String brand = scanner.nextLine();
+
+                        System.out.print("Enter warranty months: ");
+                        int warranty = scanner.nextInt();
+                        scanner.nextLine();
+
+                        Equipment equipment = new Equipment(
+                                id, name, true, id, brand, warranty
+                        );
+
+                        inventory[inventoryCount++] = equipment;
+                        System.out.println("Equipment added successfully.");
+                        break;
+
+                    case 2:
+                        System.out.print("Enter staff ID: ");
+                        int staffId = scanner.nextInt();
+                        scanner.nextLine();
+
+                        System.out.print("Enter staff name: ");
+                        String staffName = scanner.nextLine();
+
+                        System.out.print("Enter staff email: ");
+                        String email = scanner.nextLine();
+
+                        staffMembers[staffCount++] =
+                                new StaffMember(staffId, staffName, email);
+
+                        System.out.println("Staff member registered successfully.");
+                        break;
+
+                    case 3:
+                        System.out.print("Enter staff ID: ");
+                        int assignStaffId = scanner.nextInt();
+                        scanner.nextLine();
+
+                        System.out.print("Enter equipment ID: ");
+                        String assignEquipId = scanner.nextLine();
+
+                        StaffMember staff = findStaff(staffMembers, assignStaffId);
+                        Equipment equip = findEquipment(inventory, assignEquipId);
+
+                        manager.assignEquipment(staff, equip);
+                        System.out.println("Equipment assigned successfully.");
+                        break;
+
+                    case 4:
+                        System.out.print("Enter staff ID: ");
+                        int returnStaffId = scanner.nextInt();
+                        scanner.nextLine();
+
+                        System.out.print("Enter equipment ID: ");
+                        String returnEquipId = scanner.nextLine();
+
+                        StaffMember returnStaff =
+                                findStaff(staffMembers, returnStaffId);
+
+                        manager.returnEquipment(returnStaff, returnEquipId);
+                        System.out.println("Equipment returned successfully.");
+                        break;
+
+                    case 5:
+                        System.out.print("Enter equipment name to search: ");
+                        String searchName = scanner.nextLine();
+                        manager.searchEquipment(searchName);
+                        break;
+
+                    case 6:
+                        InventoryReports reports =
+                                new InventoryReports(inventory, staffMembers);
+
+                        reports.generateInventoryReport();
+                        reports.findExpiredWarranties();
+                        reports.displayAssignmentsByDepartment();
+                        reports.calculateUtilisationRate();
+                        reports.generateMaintenanceSchedule();
+                        break;
+
+                    case 7:
+                        running = false;
+                        System.out.println("Exiting system. Goodbye!");
+                        break;
+
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                }
+
+            } catch (InventoryException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+
+        scanner.close();
+    }
+
+    private static StaffMember findStaff(StaffMember[] staffMembers, int staffId)
+            throws StaffMemberNotFoundException {
+
+        for (StaffMember staff : staffMembers) {
+            if (staff != null && staff.getStaffId() == staffId) {
+                return staff;
+            }
+        }
+        throw new StaffMemberNotFoundException("Staff member not found.");
+    }
+
+    // Helper method to find equipment
+    private static Equipment findEquipment(InventoryItem[] inventory, String id)
+            throws InventoryException {
+
+        for (InventoryItem item : inventory) {
+            if (item instanceof Equipment) {
+                Equipment eq = (Equipment) item;
+                if (eq.getId().equals(id)) {
+                    return eq;
+                }
+            }
+        }
+        throw new InventoryException("Equipment not found.");
+    }
+}
